@@ -5,6 +5,7 @@ import StatusRoute from "./routes/status.route";
 import * as bodyparser from "body-parser"
 import { TaskRunner } from "./tasks/task.runner.service";
 import DataRoute from "./routes/data.route";
+import { DatabaseService } from "./db/db.service";
 
 const portNumber: number = 8090;
 
@@ -15,6 +16,7 @@ export default class Main {
     private closeRoute: CloseRoute = new CloseRoute();
     private statusRoute: StatusRoute = new StatusRoute();
     private dataRoute: DataRoute = new DataRoute();
+    private databaseService: DatabaseService = new DatabaseService();
     private server: express.Application;
 
     constructor(
@@ -25,6 +27,9 @@ export default class Main {
         this.openRoute.routes(this.server);
         this.closeRoute.routes(this.server);
         this.statusRoute.routes(this.server);
+
+
+        this.databaseService.init();
     }
     
     private config () {
