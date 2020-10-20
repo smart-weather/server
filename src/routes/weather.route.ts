@@ -7,10 +7,9 @@ export class WeatherRoute {
     public routes(app: any): void {
         app.route("/weather")
             .get((req: Request, res: Response) => {
-                DI.weatherRepository.findAll([]).then(weatherData => {
+                DI.weatherRepository.findAll().then(weatherData => {
                     res.status(200).send(weatherData);
                 });
-                
         });
     }
 }
