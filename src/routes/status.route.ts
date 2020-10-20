@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import axios from "axios"
 
-export default class StatusRoute {
+export class StatusRoute {
     constructor() {}
 
     public routes(app: any): void {

@@ -1,33 +1,48 @@
-import { MikroORM } from "@mikro-orm/core";
-import { Weather } from "./entities/weather.entity";
+import { EntityManager, EntityRepository, MikroORM } from "@mikro-orm/core";
+import Axios from "axios";
+import { TaskRunner } from "../tasks/task.runner.service";
+import { Weather } from "./entities";
+
+export const DI = {} as {
+    orm: MikroORM,
+    em: EntityManager,
+    weatherRepository: EntityRepository<Weather>,
+  };
+
+const DEFAULT_INTERVAL = 30 * 60 * 1000;
 
 export class DatabaseService {
-    constructor() {
-        
+    constructor(
+        private taskRunner: TaskRunner,
+        private interval: number = DEFAULT_INTERVAL
+        ) {}
+
+    public initOrm(): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            MikroORM.init().then(orm => {
+                DI.orm = orm;
+                DI.em = orm.em;
+                DI.weatherRepository = DI.orm.em.getRepository(Weather);
+                resolve();
+            });
+        })
     }
 
-    public async init() {
-        const orm = await MikroORM.init({
-            entities: [Weather],
-            dbName: "weatherstation",
-            type: "mongo",
-            clientUrl: ""
-        });
+    public init() {       
+        this.taskRunner.registerTask("pollWeather", () => {
+            Axios.get("http://weatherstation/data").then(result => {
+                let { data } = result
+                let newWeatherData = new Weather();
+                newWeatherData.humidity = data.humidity;
+                newWeatherData.pressure = data.pressure;
+                newWeatherData.temperature = data.temprature;
+                newWeatherData.altitude = data.altitude;
+                newWeatherData.timestamp = new Date();
 
-        const weather = await orm.em.findOneOrFail(Weather, { 
-            temperature: 22
-        });
-
-        console.log(weather);
-
-        const newWeather = new Weather();
-        newWeather.temperature = 18;
-        newWeather.pressure = 1000;
-        newWeather.humidity = 60;
-
-        await orm.em.persistAndFlush(newWeather);
-
-    }
-
-    
+                DI.weatherRepository.persistAndFlush(newWeatherData);
+                }).catch(error => {
+                    console.error(`Error occured: Weatherstation not available ERR: ${error}`);
+                });
+        }, this.interval);
+    }    
 }

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import axios from "axios"
 
-export default class OpenRoute {
+export class OpenRoute {
     constructor() {}
 
     public routes(app: any): void {

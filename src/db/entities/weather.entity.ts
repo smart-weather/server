@@ -1,18 +1,22 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
-import { ObjectId } from "@mikro-orm/mongodb";
+import { Entity, Property } from "@mikro-orm/core";
+import { BaseEntity } from './base.entity';
 
 
 @Entity()
-export class Weather {
-    @PrimaryKey()
-    _id!: ObjectId;
+export class Weather extends BaseEntity {
+    @Property()
+    temperature?: string;
 
     @Property()
-    temperature: number = 0;
+    pressure?: number;
 
     @Property()
-    pressure: number = 0;
+    humidity?: number;
 
     @Property()
-    humidity: number = 0;
+    altitude?: number;
+
+    constructor() {
+        super();
+    }
 }
