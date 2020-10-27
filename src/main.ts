@@ -4,9 +4,10 @@ import { TaskRunner } from "./tasks/task.runner.service";
 import { WeatherRoute, OpenRoute, CloseRoute, StatusRoute } from "./routes";
 import { DatabaseService } from "./db/db.service";
 
-const portNumber = process.env.PORT || 8090;
+const portNumber = process.env.PORT || 8444;
 
 export default class Main {
+
     private taskRunner: TaskRunner = new TaskRunner();
     private openRoute: OpenRoute = new OpenRoute();
     private closeRoute: CloseRoute = new CloseRoute();
@@ -14,16 +15,36 @@ export default class Main {
     private weatherRoute: WeatherRoute = new WeatherRoute();
     private databaseService: DatabaseService = new DatabaseService(this.taskRunner);
     private server: express.Application;
+    private fs: any;
+    private httpsServer: any;
 
     constructor(
     ) {
+        this.fs = require('fs'); 
         this.server = express();
-        this.config();
-        this.weatherRoute.routes(this.server);
-        this.openRoute.routes(this.server);
-        this.closeRoute.routes(this.server);
-        this.statusRoute.routes(this.server);
 
+        var privateKey = this.fs.readFileSync('sslcert/server.key');
+        var certificate = this.fs.readFileSync('sslcert/server.crt');
+
+        var credentials = {key: privateKey, cert: certificate};
+
+        var https = require('https');
+        this.config();
+
+        this.httpsServer = https.createServer(credentials, this.server).listen(8443);
+
+        
+        this.weatherRoute.routes(this.server);
+
+        for (var i=1; i<9; i++)
+        {
+            this.openRoute.routes(this.server, String(i) );
+            this.closeRoute.routes(this.server, String(i));
+            this.statusRoute.routes(this.server, String(i));
+        }
+        this.openRoute.routes(this.server, 'all');
+        this.closeRoute.routes(this.server, 'all');
+        this.statusRoute.routes(this.server, 'all');
 
         this.databaseService.init();
     }

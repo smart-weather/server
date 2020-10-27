@@ -4,10 +4,10 @@ import axios from "axios"
 export class StatusRoute {
     constructor() {}
 
-    public routes(app: any): void {
-        app.route("/status")
+    public routes(app: any, id: string): void {
+        app.route("/status/"+id)
             .get((req: Request, res: Response) => {
-                axios.get("http://192.168.178.40:8090/status").then(result => {
+                axios.get("http://ValveControl:8090/"+id+"/status").then(result => {
                     console.log(result)
                     let status: String = result.data;
                     console.log(status);
