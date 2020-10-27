@@ -1,7 +1,7 @@
 import express from "express";
 import * as bodyparser from "body-parser"
 import { TaskRunner } from "./tasks/task.runner.service";
-import { WeatherRoute, OpenRoute, CloseRoute, StatusRoute } from "./routes";
+import { WeatherRoute, OpenRoute, CloseRoute, StatusRoute, MoistureRoute } from "./routes";
 import { DatabaseService } from "./db/db.service";
 
 const portNumber = process.env.PORT || 8444;
@@ -13,6 +13,7 @@ export default class Main {
     private closeRoute: CloseRoute = new CloseRoute();
     private statusRoute: StatusRoute = new StatusRoute();
     private weatherRoute: WeatherRoute = new WeatherRoute();
+    private moisterRoute: MoistureRoute = new MoistureRoute();
     private databaseService: DatabaseService = new DatabaseService(this.taskRunner);
     private server: express.Application;
     private fs: any;
@@ -35,6 +36,7 @@ export default class Main {
 
         
         this.weatherRoute.routes(this.server);
+        this.moisterRoute.routes(this.server);
 
         for (var i=1; i<9; i++)
         {

@@ -24,6 +24,7 @@ export class DatabaseService {
                 DI.orm = orm;
                 DI.em = orm.em;
                 DI.weatherRepository = DI.orm.em.getRepository(Weather);
+                DI.moistureRepository = DI.orm.em.getRepository(Moisture);
                 resolve();
             });
         })
@@ -50,7 +51,7 @@ export class DatabaseService {
             Axios.get("http://moisture_sensor/data").then(result => {
                 let { data } = result;
                 let newData = new Moisture();
-                newData.moistrue = data.moisture
+                newData.moisture = data.moisture
                 DI.moistureRepository.persistAndFlush(newData);
             }).catch(error => {
                 console.error(`Error occured: Moisture sensor not available ERR: ${error}`);
