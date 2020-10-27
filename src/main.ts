@@ -34,7 +34,7 @@ export default class Main {
 
     run() {
         this.databaseService.initOrm().then(() => {
-            this.server.listen(portNumber,  () => {
+            this.server.listen(Number(portNumber),  '0.0.0.0', () => {
                 console.log(`Server listen on port: ${portNumber}`)
             });
         });

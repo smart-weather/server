@@ -1,12 +1,13 @@
 import { EntityManager, EntityRepository, MikroORM } from "@mikro-orm/core";
 import Axios from "axios";
 import { TaskRunner } from "../tasks/task.runner.service";
-import { Weather } from "./entities";
+import { Moisture, Weather } from "./entities";
 
 export const DI = {} as {
     orm: MikroORM,
     em: EntityManager,
     weatherRepository: EntityRepository<Weather>,
+    moistureRepository: EntityRepository<Moisture>
   };
 
 const DEFAULT_INTERVAL = 30 * 60 * 1000;
@@ -43,6 +44,17 @@ export class DatabaseService {
                 }).catch(error => {
                     console.error(`Error occured: Weatherstation not available ERR: ${error}`);
                 });
+        }, this.interval);
+
+        this.taskRunner.registerTask("pollMoisture", () => {
+            Axios.get("http://moisture_sensor/data").then(result => {
+                let { data } = result;
+                let newData = new Moisture();
+                newData.moistrue = data.moisture
+                DI.moistureRepository.persistAndFlush(newData);
+            }).catch(error => {
+                console.error(`Error occured: Moisture sensor not available ERR: ${error}`);
+        });
         }, this.interval);
     }    
 }
