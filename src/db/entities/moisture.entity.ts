@@ -5,7 +5,7 @@ import { BaseEntity } from './base.entity';
 @Entity()
 export class Moisture extends BaseEntity {
     @Property()
-    moistrue?: string;
+    moisture?: string;
 
     constructor() {
         super();
